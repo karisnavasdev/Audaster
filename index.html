@@ -388,6 +388,11 @@
       gap: 14px;
       align-items: center;
     }
+    .ca-panel .corners {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
     .ca-panel .corners i {
       position: absolute;
       width: 14px;
@@ -407,10 +412,16 @@
     .ca-value {
       font-family: "Rajdhani", sans-serif;
       font-weight: 700;
-      font-size: clamp(1.2rem, 2vw, 1.7rem);
-      letter-spacing: 0.08em;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      font-size: clamp(0.95rem, 1.7vw, 1.35rem);
+      letter-spacing: 0.04em;
+      line-height: 1.2;
+      overflow-wrap: anywhere;
+      word-break: break-all;
+    }
+    .ca-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
     }
     .pulse { animation: pulse 1.6s ease; }
 
@@ -796,6 +807,7 @@
       .wanted { display: none; }
     }
     @media (max-width: 760px) {
+      .ca-actions { justify-content: center; }
       .menu-btn { display: block; }
       .nav-links {
         display: none;
@@ -882,7 +894,8 @@
       <p class="script reveal d2">No roads. No rules. No limits.</p>
       <p class="rotator" id="rotator">Why drive when you can fly?</p>
       <div class="btn-row reveal d3">
-        <a class="btn" href="#city"><span>ENTER VICE CITY</span></a>
+        <a class="btn" id="buy-link" href="https://pump.fun/coin/3xmzHi86JTUdye7bUuT9TdBPZLeBK9nBCA44JHRdpump" target="_blank" rel="noopener noreferrer"><span>BUY $AUDASTER</span></a>
+        <a class="btn ghost" href="#city"><span>ENTER VICE CITY</span></a>
         <a class="btn ghost" href="#sky"><span>TAKE FLIGHT</span></a>
         <a class="btn ghost" href="https://x.com/Audaster" target="_blank" rel="noopener noreferrer"><span>JOIN THE CREW</span></a>
       </div>
@@ -890,8 +903,11 @@
       <div class="ca-panel" id="ca">
         <div class="corners" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
         <div class="ca-label">CONTRACT</div>
-        <div class="ca-value" id="ca-value">Audastersoon</div>
-        <button class="btn" id="copy-ca" type="button"><span>COPY CA</span></button>
+        <div class="ca-value" id="ca-value">3xmzHi86JTUdye7bUuT9TdBPZLeBK9nBCA44JHRdpump</div>
+        <div class="ca-actions">
+          <button class="btn" id="copy-ca" type="button"><span>COPY CA</span></button>
+          <a class="btn ghost" id="buy-ca" href="https://pump.fun/coin/3xmzHi86JTUdye7bUuT9TdBPZLeBK9nBCA44JHRdpump" target="_blank" rel="noopener noreferrer"><span>BUY</span></a>
+        </div>
       </div>
 
       <div class="stats">
@@ -1093,6 +1109,7 @@
         <h2 class="question">ARE YOU RIDING WITH US?</h2>
         <p class="script">Your adventure starts here.</p>
         <div class="btn-row">
+          <a class="btn" id="buy-crew" href="https://pump.fun/coin/3xmzHi86JTUdye7bUuT9TdBPZLeBK9nBCA44JHRdpump" target="_blank" rel="noopener noreferrer"><span>BUY $AUDASTER</span></a>
           <a class="btn" href="#city"><span>ENTER VICE CITY</span></a>
           <a class="btn" href="https://x.com/Audaster" target="_blank" rel="noopener noreferrer"><span>JOIN THE CREW</span></a>
           <a class="btn ghost" href="#ca"><span>START YOUR ENGINE</span></a>
@@ -1233,8 +1250,15 @@
         area.remove();
         return Promise.resolve();
       }
+      const CA = "3xmzHi86JTUdye7bUuT9TdBPZLeBK9nBCA44JHRdpump";
+      const pumpUrl = "https://pump.fun/coin/" + CA;
+      document.getElementById("ca-value").textContent = CA;
+      ["buy-link", "buy-ca", "buy-crew"].forEach((id) => {
+        const link = document.getElementById(id);
+        if (link) link.href = pumpUrl;
+      });
       document.getElementById("copy-ca").addEventListener("click", () => {
-        copyText("Audastersoon").then(() => {
+        copyText(CA).then(() => {
           toast.classList.add("show");
           caBox.classList.remove("pulse");
           void caBox.offsetWidth;
