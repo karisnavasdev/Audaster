@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audacity Roadster ($AUDASTER) — Solana</title>
+  <meta name="description" content="The streets are not enough. Audacity Roadster is a meme-fueled universe on Solana. Born in Vice City. Destined for the skies.">
+  <meta name="theme-color" content="#ff2a8a">
+  <meta property="og:title" content="Audacity Roadster ($AUDASTER)">
+  <meta property="og:description" content="Why drive when you can fly? Vice City vibes. Solana speed.">
+  <meta property="og:image" content="banner.png">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="logo.jpg" type="image/jpeg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@500;600;700&family=Yellowtail&display=swap" rel="stylesheet">
+  <link rel="preload" as="image" href="banner.png">
+  <style>
+    :root {
+      --bg: #070308;
+      --bg-2: #10060f;
+      --pink: #ff2a8a;
+      --pink-2: #ff5caf;
+      --pink-deep: #c40062;
+      --ink: #fff4f9;
+      --muted: #c9adc0;
+      --line: rgba(255, 42, 138, 0.45);
+      --glow: 0 0 24px rgba(255, 42, 138, 0.45);
+      --header: 74px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(1200px 600px at 80% -10%, rgba(255, 42, 138, 0.16), transparent 55%),
+        radial-gradient(900px 500px at -10% 20%, rgba(255, 42, 138, 0.08), transparent 50%),
+        var(--bg);
+      color: var(--ink);
+      font-family: "Rajdhani", "Segoe UI", sans-serif;
+      font-size: 1.18rem;
+      line-height: 1.45;
+      overflow-x: hidden;
+    }
+    body.locked { overflow: hidden; }
+    img { max-width: 100%; display: block; }
+    a { color: inherit; text-decoration: none; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    ::selection { background: var(--pink); color: white; }
+    :focus-visible { outline: 2px solid var(--pink); outline-offset: 3px; }
+
+    .noise, .scan {
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+    }
+    .noise {
+      z-index: 70;
+      opacity: 0.05;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    }
+    .scan {
+      z-index: 71;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.18) 0 1px,
+        transparent 1px 4px
+      );
+      opacity: 0.35;
+      mix-blend-mode: multiply;
+    }
+    #progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      width: 0;
+      background: linear-gradient(90deg, var(--pink-deep), var(--pink-2));
+      box-shadow: 0 0 14px var(--pink);
+      z-index: 250;
+    }
+
+    .intro {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at 50% 40%, rgba(255, 42, 138, 0.2), transparent 42%),
+        #050206;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+    .intro.out { opacity: 0; visibility: hidden; }
+    .intro-card { width: min(560px, calc(100% - 40px)); text-align: center; }
+    .intro-thumb {
+      width: 92px;
+      height: 92px;
+      margin: 0 auto 18px;
+      border-radius: 8px;
+      object-fit: cover;
+      object-position: center 30%;
+      border: 2px solid var(--pink);
+      box-shadow: var(--glow);
+      animation: floaty 3.2s ease-in-out infinite;
+    }
+    .intro h1 {
+      margin: 0;
+      font-family: "Bebas Neue", Impact, sans-serif;
+      font-size: clamp(3.4rem, 10vw, 6rem);
+      letter-spacing: 0.04em;
+      line-height: 0.85;
+    }
+    .intro h1 span {
+      display: block;
+      font-family: "Yellowtail", cursive;
+      font-size: 0.55em;
+      color: var(--pink);
+      letter-spacing: 0;
+      text-shadow: 0 0 18px rgba(255, 42, 138, 0.8);
+    }
+    .intro .ticker-pill {
+      display: inline-block;
+      margin: 14px 0 22px;
+      padding: 4px 12px;
+      border: 1px solid var(--pink);
+      color: var(--pink);
+      letter-spacing: 0.22em;
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+    .load-bar {
+      height: 14px;
+      border: 2px solid var(--pink);
+      background: #140810;
+      overflow: hidden;
+      box-shadow: var(--glow);
+    }
+    .load-fill {
+      height: 100%;
+      width: 0;
+      background: repeating-linear-gradient(
+        -45deg,
+        var(--pink) 0 10px,
+        var(--pink-2) 10px 20px
+      );
+      background-size: 28px 28px;
+      animation: stripes 0.5s linear infinite;
+    }
+    .load-label {
+      margin: 12px 0 0;
+      color: var(--muted);
+      letter-spacing: 0.18em;
+      font-size: 0.92rem;
+      font-weight: 700;
+      min-height: 1.4em;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: var(--header);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 0 22px;
+      background: rgba(7, 3, 8, 0.86);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--line);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .brand img {
+      width: 46px;
+      height: 46px;
+      object-fit: cover;
+      object-position: center 28%;
+      border: 1px solid var(--pink);
+      box-shadow: 0 0 12px rgba(255, 42, 138, 0.45);
+    }
+    .brand strong {
+      display: block;
+      font-family: "Bebas Neue", Impact, sans-serif;
+      font-size: 1.55rem;
+      letter-spacing: 0.06em;
+      line-height: 0.9;
+    }
+    .brand em {
+      font-family: "Yellowtail", cursive;
+      font-style: normal;
+      color: var(--pink);
+      font-size: 1.15rem;
+      line-height: 1;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      font-size: 0.98rem;
+    }
+    .nav-links a:hover { color: var(--pink); }
+    .wanted {
+      display: flex;
+      gap: 3px;
+      color: #3a2433;
+      font-size: 1.05rem;
+      letter-spacing: 0;
+    }
+    .wanted .lit {
+      color: var(--pink);
+      text-shadow: 0 0 10px var(--pink);
+    }
+    .nav-x {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--pink);
+      color: #14010a;
+      font-family: "Bebas Neue", Impact, sans-serif;
+      letter-spacing: 0.12em;
+      font-size: 1.25rem;
+      padding: 8px 14px;
+      transform: skewX(-12deg);
+      box-shadow: var(--glow);
+    }
+    .nav-x span, .btn span { display: inline-flex; align-items: center; gap: 8px; transform: skewX(12deg); }
+    .nav-x svg { width: 14px; height: 14px; }
+    .nav-x:hover { background: var(--pink-2); }
+    .menu-btn {
+      display: none;
+      width: 46px;
+      height: 46px;
+      border: 1px solid var(--pink);
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+    }
+    .menu-btn span {
+      display: block;
+      height: 2px;
+      margin: 6px 10px;
+      background: var(--pink);
+    }
+
+    .hero-frame {
+      position: relative;
+      overflow: hidden;
+      border-bottom: 3px solid var(--pink);
+      box-shadow: 0 18px 50px rgba(255, 42, 138, 0.18);
+    }
+    .hero-frame img {
+      width: 108%;
+      max-width: none;
+      height: auto;
+      margin-left: -4%;
+      animation: ken 22s ease-in-out infinite alternate;
+    }
+    .hero-hud {
+      pointer-events: none;
+      position: absolute;
+      inset: 16px;
+      border: 1px solid rgba(255, 42, 138, 0.35);
+    }
+    .hero-hud i {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border: 2px solid var(--pink);
+    }
+    .hero-hud i:nth-child(1) { top: -2px; left: -2px; border-right: 0; border-bottom: 0; }
+    .hero-hud i:nth-child(2) { top: -2px; right: -2px; border-left: 0; border-bottom: 0; }
+    .hero-hud i:nth-child(3) { bottom: -2px; left: -2px; border-right: 0; border-top: 0; }
+    .hero-hud i:nth-child(4) { bottom: -2px; right: -2px; border-left: 0; border-top: 0; }
+
+    .wrap { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+    .title-block {
+      padding: 54px 0 20px;
+      text-align: center;
+    }
+    .kicker {
+      margin: 0 0 8px;
+      color: var(--pink);
+      font-weight: 700;
+      letter-spacing: 0.28em;
+      font-size: 0.92rem;
+    }
+    h1.display, h2.display {
+      margin: 0;
+      font-family: "Bebas Neue", Impact, sans-serif;
+      font-weight: 400;
+      letter-spacing: 0.03em;
+      line-height: 0.88;
+    }
+    h1.display { font-size: clamp(3.3rem, 8vw, 7.2rem); }
+    h2.display { font-size: clamp(2.6rem, 6vw, 5rem); }
+    .script {
+      margin: 10px 0 0;
+      font-family: "Yellowtail", cursive;
+      color: var(--pink);
+      font-size: clamp(1.7rem, 3.5vw, 2.7rem);
+      text-shadow: 0 0 16px rgba(255, 42, 138, 0.55);
+    }
+    .rotator {
+      min-height: 1.4em;
+      margin: 18px auto 0;
+      max-width: 18em;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink);
+    }
+    .rotator.swap { animation: swap 0.45s ease; }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 26px;
+    }
+    .btn {
+      display: inline-flex;
+      border: 0;
+      cursor: pointer;
+      background: var(--pink);
+      color: #1a0110;
+      font-family: "Bebas Neue", Impact, sans-serif;
+      font-size: 1.35rem;
+      letter-spacing: 0.08em;
+      padding: 12px 18px;
+      transform: skewX(-12deg);
+      box-shadow: var(--glow);
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+    .btn:hover { background: var(--pink-2); transform: skewX(-12deg) translateY(-2px); }
+    .btn.ghost {
+      background: transparent;
+      color: var(--ink);
+      box-shadow: inset 0 0 0 2px var(--pink), var(--glow);
+    }
+    .btn.ghost:hover { background: rgba(255, 42, 138, 0.12); }
+
+    .marquee {
+      margin-top: 36px;
+      border-block: 1px solid var(--line);
+      background: #0c0610;
+      overflow: hidden;
+      padding: 12px 0;
+    }
+    .marquee-track {
+      display: flex;
+      width: max-content;
+      animation: ticker 32s linear infinite;
+    }
+    .marquee:hover .marquee-track { animation-play-state: paused; }
+    .marquee-group {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      padding-right: 28px;
+      font-family: "Bebas Neue", Impact, sans-serif;
+      letter-spacing: 0.08em;
+      font-size: 1.35rem;
+      white-space: nowrap;
+    }
+    .marquee-group b { color: var(--pink); font-weight: 400; }
+
+    .ca-panel {
+      position: relative;
+      margin: 28px auto 10px;
+      padding: 18px 18px 16px;
+      background:
+        linear-gradient(180deg, rgba(255, 42, 138, 0.08), transparent 40%),
+        #0c060d;
+      border: 1px solid var(--line);
+      box-shadow: var(--glow);
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 14px;
+      align-items: center;
+    }
+    .ca-panel .corners i {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border: 2px solid var(--pink);
+    }
+    .ca-panel .corners i:nth-child(1) { top: -2px; left: -2px; border-right: 0; border-bottom: 0; }
+    .ca-panel .corners i:nth-child(2) { top: -2px; right: -2px; border-left: 0; border-bottom: 0; }
+    .ca-panel .corners i:nth-child(3) { bottom: -2px; left: -2px; border-right: 0; border-top: 0; }
+    .ca-panel .corners i:nth-child(4) { bottom: -2px; right: -2px; border-left: 0; border-top: 0; }
+    .ca-label {
+      font-family: "Bebas Neue", Impact, sans-serif;
+      letter-spacing: 0.14em;
+      color: var(--pink);
+      font-size: 1.3rem;
+    }
+    .ca-value {
+      font-family: "Rajdhani", sans-serif;
+      font-weight: 700;
+      font-size: clamp(1.2rem, 2vw, 1.7rem);
+      letter-spacing: 0.08em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .pulse { animation: pulse 1.6s ease; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border: 1px solid var(--line);
+      margin: 22px 0 10px;
+    }
+    .stats div {
+      padding: 16px 12px;
+      text-align: center;
+      border-right: 1px solid var(--line);
+    }
+    .stats div:last-child { border-right: 0; }
+    .stats small {
+      display: block;
+      color: var(--muted);
+      letter-spacing: 0.18em;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .stats strong {
+      display: block;
+      margin-top: 4px;
+      font-family: "Bebas Neue", Impact, sans-serif;
+      font-size: 1.7rem;
+      letter-spacing: 0.06em;
+    }
+    .live {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      margin-right: 6px;
+      border-radius: 50%;
+      background: var(--pink);
+      box-shadow: 0 0 10px var(--pink);
+      animation: blink 1.2s steps(2) infinite;
+    }
+
+    section { position: relative; padding: 84px 0; }
+    .split {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 42px;
+      align-items: center;
+    }
+    .split.reverse { grid-template-columns: 0.95fr 1.05fr; }
+    .split.reverse .copy { order: 2; }
+    .frame {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      box-shadow: var(--glow);
+    }
+    .frame img {
+      width: 100%;
+      height: 100%;
+      min-height: 420px;
+      object-fit: cover;
+      transition: transform 0.8s ease;
+    }
+    .frame:hover img { transform: scale(1.05); }
+    .frame .tag {
+      position: absolute;
+      left: 12px;
+      bottom: 12px;
+      background: rgba(7, 3, 8, 0.82);
+      border: 1px solid var(--pink);
+      padding: 6px 10px;
+      font-family: "Bebas Neue", Impact, sans-serif;
+      letter-spacing: 0.12em;
+      font-size: 1.1rem;
+    }
+    .copy h2 { margin-bottom: 8px; }
+    .copy p { margin: 0 0 14px; color: #f3e7ee; max-width: 62ch; }
+    .copy .lede {
+      font-size: 1.35rem;
+      font-weight: 700;
+    }
+    .pull {
+      margin: 18px 0;
+      font-family: "Bebas Neue", Impact, sans-serif;
+      font-size: clamp(2rem, 4vw, 3.1rem);
+      line-height: 0.92;
+      color: white;
+    }
+    .pull em {
+      font-family: "Yellowtail", cursive;
+      font-style: normal;
+      color: var(--pink);
+      font-size: 0.72em;
+    }
+
+    .sky {
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(7, 3, 8, 0.2), rgba(7, 3, 8, 0.92)),
+        url("meme/Photos_6Mg8okcmmv.png") center/cover no-repeat;
+    }
+    .watermark {
+      position: absolute;
+      left: -2vw;
+      top: 10px;
+      font-family: "Bebas Neue", Impact, sans-serif;
+      font-size: 16vw;
+      line-height: 0.8;
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(255, 42, 138, 0.28);
+      user-select: none;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .missions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 28px;
+    }
+    .mission {
+      position: relative;
+      min-height: 390px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: #10060f;
+    }
+    .mission img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.7s ease;
+    }
+    .mission:hover img { transform: scale(1.07); }
+    .mission .shade {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0.05) 20%, rgba(5, 0, 8, 0.92) 78%);
+    }
+    .mission .body {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 18px;
+    }
+    .mission .num {
+      font-family: "Bebas Neue", Impact, sans-serif;
+      color: var(--pink);
+      letter-spacing: 0.16em;
+    }
+    .mission h3 {
+      margin: 4px 0 6px;
+      font-family: "Bebas Neue", Impact, sans-serif;
+      font-size: 2rem;
+      letter-spacing: 0.04em;
+      font-weight: 400;
+    }
+    .mission p { margin: 0; color: var(--muted); }
+
+    .billboard {
+      position: relative;
+      min-height: 460px;
+      display: grid;
+      align-items: end;
+      overflow: hidden;
+      border-block: 3px solid var(--pink);
+    }
+    .billboard img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      animation: ken 26s ease-in-out infinite alternate;
+    }
+    .billboard .veil {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(5, 0, 8, 0.78), rgba(5, 0, 8, 0.15) 70%);
+    }
+    .billboard .wrap { position: relative; padding: 48px 0; }
+    .billboard h2 { max-width: 10em; }
+
+    .gallery-head { text-align: center; margin-bottom: 26px; }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    .shot {
+      position: relative;
+      margin: 0;
+      overflow: hidden;
+      border: 1px solid rgba(255, 42, 138, 0.28);
+      cursor: zoom-in;
+      background: #120810;
+      min-height: 240px;
+    }
+    .shot.wide { grid-column: span 2; }
+    .shot img {
+      width: 100%;
+      height: 320px;
+      object-fit: cover;
+      transition: transform 0.55s ease, filter 0.55s ease;
+    }
+    .shot.wide img { height: 360px; }
+    .shot:hover img { transform: scale(1.06); filter: saturate(1.15); }
+    .shot figcaption {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 28px 12px 12px;
+      background: linear-gradient(transparent, rgba(0, 0, 0, 0.88));
+      font-family: "Bebas Neue", Impact, sans-serif;
+      letter-spacing: 0.08em;
+      font-size: 1.25rem;
+    }
+
+    .crew {
+      text-align: center;
+      background:
+        linear-gradient(180deg, rgba(7, 3, 8, 0.72), rgba(7, 3, 8, 0.9)),
+        url("meme/Photos_Jm4cOEYAZT.png") center/cover no-repeat;
+    }
+    .crew .question {
+      font-family: "Bebas Neue", Impact, sans-serif;
+      font-size: clamp(2.8rem, 7vw, 5.6rem);
+      line-height: 0.9;
+      margin: 10px 0 0;
+    }
+
+    footer {
+      padding: 42px 0 28px;
+      border-top: 2px solid var(--pink);
+      background: #050206;
+      text-align: center;
+    }
+    footer .logo-type {
+      font-family: "Bebas Neue", Impact, sans-serif;
+      font-size: 2.4rem;
+      letter-spacing: 0.08em;
+      margin: 0;
+    }
+    footer .tagline {
+      margin: 4px 0 14px;
+      font-family: "Yellowtail", cursive;
+      color: var(--pink);
+      font-size: 1.45rem;
+    }
+    footer .fine {
+      max-width: 680px;
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+    footer .x-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      color: var(--pink);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+    footer .x-link svg { width: 16px; height: 16px; }
+
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 400;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 70px;
+      background: rgba(3, 0, 6, 0.92);
+    }
+    .lightbox.open { display: flex; }
+    .lightbox img {
+      max-width: min(1100px, 100%);
+      max-height: 82vh;
+      object-fit: contain;
+      border: 1px solid var(--pink);
+      box-shadow: var(--glow);
+    }
+    .lightbox figcaption {
+      position: absolute;
+      bottom: 18px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-family: "Bebas Neue", Impact, sans-serif;
+      letter-spacing: 0.12em;
+      font-size: 1.5rem;
+      color: var(--pink-2);
+    }
+    .lb-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 48px;
+      height: 64px;
+      border: 1px solid var(--pink);
+      background: rgba(7, 3, 8, 0.8);
+      color: white;
+      font-size: 1.8rem;
+      cursor: pointer;
+    }
+    .lb-btn.prev { left: 14px; }
+    .lb-btn.next { right: 14px; }
+    .lb-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 44px;
+      height: 44px;
+      border: 1px solid var(--pink);
+      background: #140810;
+      color: white;
+      font-size: 1.4rem;
+      cursor: pointer;
+    }
+
+    #toast {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--pink);
+      color: #1a0110;
+      font-family: "Bebas Neue", Impact, sans-serif;
+      letter-spacing: 0.14em;
+      font-size: 1.3rem;
+      padding: 10px 16px;
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.3s ease;
+      z-index: 420;
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      animation: rise 0.8s ease forwards;
+    }
+    .d1 { animation-delay: 0.1s; }
+    .d2 { animation-delay: 0.2s; }
+    .d3 { animation-delay: 0.3s; }
+
+    @keyframes ken { to { transform: scale(1.08); } }
+    @keyframes floaty {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    @keyframes stripes { to { background-position: 28px 0; } }
+    @keyframes ticker { to { transform: translateX(-50%); } }
+    @keyframes blink { 50% { opacity: 0.25; } }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(255, 42, 138, 0.7); }
+      100% { box-shadow: 0 0 0 16px rgba(255, 42, 138, 0); }
+    }
+    @keyframes swap {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: none; }
+    }
+    @keyframes rise {
+      to { opacity: 1; transform: none; }
+    }
+
+    @media (max-width: 980px) {
+      .stats { grid-template-columns: 1fr 1fr; }
+      .stats div:nth-child(2) { border-right: 0; }
+      .stats div { border-bottom: 1px solid var(--line); }
+      .split, .split.reverse { grid-template-columns: 1fr; }
+      .split.reverse .copy { order: 0; }
+      .missions, .gallery { grid-template-columns: 1fr 1fr; }
+      .shot.wide { grid-column: span 2; }
+      .frame img { min-height: 280px; }
+      .wanted { display: none; }
+    }
+    @media (max-width: 760px) {
+      .menu-btn { display: block; }
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: var(--header);
+        left: 12px;
+        right: 12px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 8px;
+        background: #0c060e;
+        border: 1px solid var(--pink);
+        box-shadow: var(--glow);
+      }
+      .nav-links.open { display: flex; }
+      .nav-links a { padding: 12px; }
+      .nav-x { justify-content: center; }
+      .ca-panel { grid-template-columns: 1fr; text-align: center; }
+      .missions, .gallery, .shot.wide { grid-template-columns: 1fr; }
+      .shot.wide { grid-column: auto; }
+      .shot img, .shot.wide img { height: 280px; }
+      .hero-frame img { width: 112%; margin-left: -6%; height: auto; }
+      .lightbox { padding: 60px 12px; }
+      .lb-btn { top: auto; bottom: 54px; transform: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+      .reveal { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+  <div class="scan" aria-hidden="true"></div>
+  <div id="progress"></div>
+
+  <div class="intro" id="intro">
+    <div class="intro-card">
+      <img class="intro-thumb" src="logo.jpg" alt="">
+      <h1>AUDACITY<span>Roadster</span></h1>
+      <div class="ticker-pill">$AUDASTER</div>
+      <div class="load-bar" aria-hidden="true"><div class="load-fill" id="load-fill"></div></div>
+      <p class="load-label" id="load-label">LOADING THE STREETS...</p>
+    </div>
+  </div>
+
+  <header class="site-header" id="top">
+    <a class="brand" href="#top">
+      <img src="logo.jpg" alt="Audacity Roadster logo">
+      <span><strong>AUDACITY</strong><em>Roadster</em></span>
+    </a>
+    <button class="menu-btn" id="menu-btn" aria-expanded="false" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="nav-links" id="nav-links">
+      <a href="#story">STORY</a>
+      <a href="#sky">SKY</a>
+      <a href="#city">CITY</a>
+      <a href="#gallery">GALLERY</a>
+      <a href="#crew">CREW</a>
+      <div class="wanted" aria-hidden="true"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+      <a class="nav-x" href="https://x.com/Audaster" target="_blank" rel="noopener noreferrer">
+        <span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.727-8.835L1.254 2.25H8.08l4.253 5.622L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          TWITTER
+        </span>
+      </a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero-frame" aria-label="Audacity Roadster banner">
+      <img src="banner.png" alt="Audacity Roadster banner over a neon Vice City waterfront, with the crew and a flying Roadster">
+      <div class="hero-hud" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    </section>
+
+    <div class="wrap title-block">
+      <p class="kicker reveal">SOLANA MEME · $AUDASTER</p>
+      <h1 class="display reveal d1">THE STREETS ARE<br>NOT ENOUGH.</h1>
+      <p class="script reveal d2">No roads. No rules. No limits.</p>
+      <p class="rotator" id="rotator">Why drive when you can fly?</p>
+      <div class="btn-row reveal d3">
+        <a class="btn" href="#city"><span>ENTER VICE CITY</span></a>
+        <a class="btn ghost" href="#sky"><span>TAKE FLIGHT</span></a>
+        <a class="btn ghost" href="https://x.com/Audaster" target="_blank" rel="noopener noreferrer"><span>JOIN THE CREW</span></a>
+      </div>
+
+      <div class="ca-panel" id="ca">
+        <div class="corners" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        <div class="ca-label">CONTRACT</div>
+        <div class="ca-value" id="ca-value">Audastersoon</div>
+        <button class="btn" id="copy-ca" type="button"><span>COPY CA</span></button>
+      </div>
+
+      <div class="stats">
+        <div><small>TICKER</small><strong>$AUDASTER</strong></div>
+        <div><small>CHAIN</small><strong>SOLANA</strong></div>
+        <div><small>STATUS</small><strong><i class="live"></i>AIRBORNE</strong></div>
+        <div><small>VIBE</small><strong>VICE CITY</strong></div>
+      </div>
+    </div>
+
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee-track">
+        <div class="marquee-group">
+          <span>WHY DRIVE WHEN YOU CAN FLY?</span><b>◆</b>
+          <span>BORN ON THE STREETS. DESTINED FOR THE SKIES.</span><b>◆</b>
+          <span>VICE CITY VIBES. SOLANA SPEED.</span><b>◆</b>
+          <span>THE SKY WAS NEVER THE LIMIT.</span><b>◆</b>
+          <span>TOO FAST FOR THE STREETS. TOO WILD FOR THE RULES.</span><b>◆</b>
+          <span>ZERO GRAVITY. MAXIMUM AUDACITY.</span><b>◆</b>
+          <span>ONE CITY. ONE CREW. INFINITE CHAOS.</span><b>◆</b>
+          <span>YOUR FAVORITE OPEN-WORLD FEVER DREAM, NOW ON SOLANA.</span><b>◆</b>
+          <span>THE STREETS MADE US. THE SKY BELONGS TO US.</span><b>◆</b>
+          <span>DRIVE THE MEME. OWN THE MOMENT.</span><b>◆</b>
+        </div>
+        <div class="marquee-group">
+          <span>WHY DRIVE WHEN YOU CAN FLY?</span><b>◆</b>
+          <span>BORN ON THE STREETS. DESTINED FOR THE SKIES.</span><b>◆</b>
+          <span>VICE CITY VIBES. SOLANA SPEED.</span><b>◆</b>
+          <span>THE SKY WAS NEVER THE LIMIT.</span><b>◆</b>
+          <span>TOO FAST FOR THE STREETS. TOO WILD FOR THE RULES.</span><b>◆</b>
+          <span>ZERO GRAVITY. MAXIMUM AUDACITY.</span><b>◆</b>
+          <span>ONE CITY. ONE CREW. INFINITE CHAOS.</span><b>◆</b>
+          <span>YOUR FAVORITE OPEN-WORLD FEVER DREAM, NOW ON SOLANA.</span><b>◆</b>
+          <span>THE STREETS MADE US. THE SKY BELONGS TO US.</span><b>◆</b>
+          <span>DRIVE THE MEME. OWN THE MOMENT.</span><b>◆</b>
+        </div>
+      </div>
+    </div>
+
+    <section id="story">
+      <div class="wrap split">
+        <div class="frame">
+          <img src="logo.jpg" alt="Flying Roadster above a neon lineup of cars on the Vice City waterfront">
+          <div class="tag">MISSION 00 · LIFTOFF</div>
+        </div>
+        <div class="copy">
+          <p class="kicker">WELCOME</p>
+          <h2 class="display">AUDACITY<br>ROADSTER</h2>
+          <p class="lede">Welcome to Audacity Roadster — where the neon lights never fade, the engines never sleep, and the sky is just another highway.</p>
+          <p>Born from the chaos of Vice City. Inspired by the impossible. Powered by the culture of Solana.</p>
+          <p class="pull">This is a whole new level of <em>audacity.</em></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="sky" id="sky">
+      <div class="watermark">AIRBORNE</div>
+      <div class="wrap split reverse">
+        <div class="copy">
+          <p class="kicker">WELCOME TO THE NEXT LEVEL</p>
+          <h2 class="display">WE DECIDED<br>TO FLY.</h2>
+          <p class="lede">Some drive fast. Some chase dreams.</p>
+          <p>From neon-soaked streets to the skies above the city, Audacity Roadster is a meme-fueled universe built for those who refuse to stay grounded.</p>
+          <p>No speed limits. No ordinary adventures. Just pure chaos and legendary vibes.</p>
+          <p class="script">Zero gravity. Maximum audacity.</p>
+        </div>
+        <div class="frame">
+          <img src="meme/Photos_PZvSXXLnlM.png" alt="Red supercar launching off a yacht ramp while the Roadster flies overhead">
+          <div class="tag">ALTITUDE: UNLIMITED</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="city">
+      <div class="wrap">
+        <p class="kicker">THE CITY IS OUR PLAYGROUND</p>
+        <h2 class="display">PALM TREES.<br>SUPERCARS. NEON.</h2>
+        <p class="lede" style="max-width:62ch">The city never sleeps, and neither does the Roadster crew. Car culture, gaming nostalgia, internet memes, and Solana energy — one wild ride.</p>
+        <p class="pull">Every legend starts <em>above the streets.</em></p>
+        <div class="missions">
+          <article class="mission">
+            <img src="meme/Photos_wcsYcDbRPN.png" alt="Night drive down a neon avenue with the Roadster flying ahead">
+            <div class="shade"></div>
+            <div class="body">
+              <div class="num">01 — STREETS</div>
+              <h3>BORN HERE</h3>
+              <p>Midnight avenues, palm silhouettes, and a skyline that never clocks out.</p>
+            </div>
+          </article>
+          <article class="mission">
+            <img src="meme/Photos_Poh2GjrmTU.png" alt="Cockpit view down a neon street with the Roadster in the sky">
+            <div class="shade"></div>
+            <div class="body">
+              <div class="num">02 — ENGINE</div>
+              <h3>START IT</h3>
+              <p>Hands on the wheel. The highway ends. The sky opens.</p>
+            </div>
+          </article>
+          <article class="mission">
+            <img src="meme/Photos_hMKm0w59Ld.png" alt="Crew on the waterfront with cash, cases, and the flying Roadster">
+            <div class="shade"></div>
+            <div class="body">
+              <div class="num">03 — CREW</div>
+              <h3>RIDE WITH US</h3>
+              <p>One city. One crew. Infinite chaos.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="billboard" aria-label="Highway chase">
+      <img src="meme/Photos_6Mg8okcmmv.png" alt="Supercars and a semi charging a neon highway under the flying Roadster">
+      <div class="veil"></div>
+      <div class="wrap">
+        <p class="kicker">BUILT DIFFERENT. DRIVEN BY AUDACITY.</p>
+        <h2 class="display">THEY SAID CARS BELONG ON ROADS.</h2>
+        <p class="script">Watch this.</p>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap split">
+        <div class="frame">
+          <img src="meme/Photos_9BOdsJxE5I.png" alt="Roadster crew standing together at dusk beneath a helicopter and the flying car">
+          <div class="tag">THE CREW</div>
+        </div>
+        <div class="copy">
+          <p class="kicker">NO ORDINARY RIDE</p>
+          <h2 class="display">TURN THE IMPOSSIBLE INTO A MEME.</h2>
+          <p>Audacity Roadster is about breaking expectations, embracing the absurd, and turning impossible moments into unforgettable memes.</p>
+          <p>Because sometimes the craziest ideas make the best stories.</p>
+          <p class="script">The streets made us. The sky belongs to us.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="gallery">
+      <div class="wrap">
+        <div class="gallery-head">
+          <p class="kicker">THE CITY NEVER SLEEPS</p>
+          <h2 class="display">ROADSTER ARCHIVE</h2>
+          <p class="script">Drive the meme. Own the moment.</p>
+        </div>
+        <div class="gallery" id="gallery-grid">
+          <figure class="shot wide">
+            <img src="meme/Photos_4ggAvZdvrH.jpg" alt="The crew posed on a red supercar along the Vice City waterfront" data-caption="The city is our playground">
+            <figcaption>THE CITY IS OUR PLAYGROUND</figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="meme/Photos_FOozRUEqnu.png" alt="Night party on a red supercar under neon palms" data-caption="Maximum audacity">
+            <figcaption>MAXIMUM AUDACITY</figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="meme/Photos_J9UiFSuRUH.png" alt="Yacht afternoon with the skyline and flying Roadster" data-caption="The sky belongs to us">
+            <figcaption>THE SKY BELONGS TO US</figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="meme/Photos_hMKm0w59Ld.png" alt="Waterfront night with the crew and a flying Roadster" data-caption="Drive the meme">
+            <figcaption>DRIVE THE MEME</figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="meme/Photos_wcsYcDbRPN.png" alt="Night drive down a neon avenue with the Roadster flying ahead" data-caption="Why drive when you can fly?">
+            <figcaption>WHY DRIVE WHEN YOU CAN FLY?</figcaption>
+          </figure>
+          <figure class="shot wide">
+            <img src="meme/Photos_6Mg8okcmmv.png" alt="Highway chase through neon Vice City" data-caption="Too fast for the streets">
+            <figcaption>TOO FAST FOR THE STREETS</figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="meme/Photos_Poh2GjrmTU.png" alt="From the driver's seat, neon streets and a flying Roadster" data-caption="Start your engine">
+            <figcaption>START YOUR ENGINE</figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="meme/Photos_PZvSXXLnlM.png" alt="Supercar leaving a yacht as the Roadster circles above" data-caption="Born on the streets">
+            <figcaption>BORN ON THE STREETS</figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="meme/Photos_jD1XzWWmB5.png" alt="Crew posted up by the truck and a silver Roadster" data-caption="One city. One crew.">
+            <figcaption>ONE CITY. ONE CREW.</figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="meme/Photos_9BOdsJxE5I.png" alt="The Roadster crew under a violet sky" data-caption="Join the crew">
+            <figcaption>JOIN THE CREW</figcaption>
+          </figure>
+          <figure class="shot wide">
+            <img src="meme/Photos_Jm4cOEYAZT.png" alt="Sunset rooftop above the bay as the Roadster flies past" data-caption="Vice City vibes">
+            <figcaption>VICE CITY VIBES</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="crew" id="crew">
+      <div class="wrap">
+        <p class="kicker">JOIN THE ROADSTER CREW</p>
+        <p class="lede">The engines are roaring. The city is glowing. The Roadster is already airborne.</p>
+        <p>The only question is:</p>
+        <h2 class="question">ARE YOU RIDING WITH US?</h2>
+        <p class="script">Your adventure starts here.</p>
+        <div class="btn-row">
+          <a class="btn" href="#city"><span>ENTER VICE CITY</span></a>
+          <a class="btn" href="https://x.com/Audaster" target="_blank" rel="noopener noreferrer"><span>JOIN THE CREW</span></a>
+          <a class="btn ghost" href="#ca"><span>START YOUR ENGINE</span></a>
+          <a class="btn ghost" href="#gallery"><span>EXPLORE THE ROADSTER</span></a>
+          <a class="btn ghost" href="#sky"><span>TAKE FLIGHT</span></a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <p class="logo-type">AUDACITY ROADSTER</p>
+      <p class="tagline">Fueled by memes. Inspired by speed. Living above the streets.</p>
+      <a class="x-link" href="https://x.com/Audaster" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.727-8.835L1.254 2.25H8.08l4.253 5.622L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        @AUDASTER
+      </a>
+      <p class="fine">An independent, community-driven meme project on Solana. Not affiliated with Tesla, Rockstar Games, or Grand Theft Auto. For entertainment only.</p>
+    </div>
+  </footer>
+
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image viewer">
+    <button class="lb-close" id="lb-close" type="button" aria-label="Close">×</button>
+    <button class="lb-btn prev" id="lb-prev" type="button" aria-label="Previous">‹</button>
+    <img id="lb-img" alt="">
+    <button class="lb-btn next" id="lb-next" type="button" aria-label="Next">›</button>
+    <figcaption id="lb-cap"></figcaption>
+  </div>
+  <div id="toast" role="status">CA COPIED</div>
+
+  <script>
+    (function () {
+      const intro = document.getElementById("intro");
+      const fill = document.getElementById("load-fill");
+      const label = document.getElementById("load-label");
+      const lines = [
+        "LOADING THE STREETS...",
+        "SPOOLING THE ENGINES...",
+        "CLEARING THE RUNWAY...",
+        "ENTERING VICE CITY..."
+      ];
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      function finishIntro() {
+        if (!intro || intro.classList.contains("out")) return;
+        intro.classList.add("out");
+        setTimeout(() => intro.remove(), 650);
+      }
+
+      if (reduce) {
+        intro.remove();
+      } else {
+        const start = performance.now();
+        const duration = 2600;
+        function tick(now) {
+          const p = Math.min(1, (now - start) / duration);
+          fill.style.width = (p * 100) + "%";
+          label.textContent = lines[Math.min(lines.length - 1, Math.floor(p * lines.length))];
+          if (p < 1) requestAnimationFrame(tick);
+          else setTimeout(finishIntro, 280);
+        }
+        requestAnimationFrame(tick);
+        intro.addEventListener("click", finishIntro);
+      }
+
+      const menuBtn = document.getElementById("menu-btn");
+      const nav = document.getElementById("nav-links");
+      menuBtn.addEventListener("click", () => {
+        const open = nav.classList.toggle("open");
+        menuBtn.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+      nav.querySelectorAll("a").forEach((a) => {
+        a.addEventListener("click", () => {
+          nav.classList.remove("open");
+          menuBtn.setAttribute("aria-expanded", "false");
+        });
+      });
+
+      const slogans = [
+        "Why drive when you can fly?",
+        "Born on the streets. Destined for the skies.",
+        "Vice City vibes. Solana speed.",
+        "The sky was never the limit.",
+        "Too fast for the streets. Too wild for the rules.",
+        "Zero gravity. Maximum audacity.",
+        "One city. One crew. Infinite chaos.",
+        "Your favorite open-world fever dream, now on Solana.",
+        "The streets made us. The sky belongs to us.",
+        "Drive the meme. Own the moment."
+      ];
+      const rotator = document.getElementById("rotator");
+      let si = 0;
+      if (!reduce) {
+        setInterval(() => {
+          si = (si + 1) % slogans.length;
+          rotator.textContent = slogans[si];
+          rotator.classList.remove("swap");
+          void rotator.offsetWidth;
+          rotator.classList.add("swap");
+        }, 2800);
+      }
+
+      const bar = document.getElementById("progress");
+      const stars = document.querySelectorAll(".wanted span");
+      function onScroll() {
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        const p = max > 0 ? window.scrollY / max : 0;
+        bar.style.width = (p * 100) + "%";
+        const n = Math.max(1, Math.ceil(p * 5));
+        stars.forEach((star, i) => star.classList.toggle("lit", i < n));
+      }
+      onScroll();
+      window.addEventListener("scroll", onScroll, { passive: true });
+
+      const caBox = document.getElementById("ca");
+      document.querySelectorAll('a[href="#ca"]').forEach((link) => {
+        link.addEventListener("click", () => {
+          caBox.classList.remove("pulse");
+          void caBox.offsetWidth;
+          caBox.classList.add("pulse");
+        });
+      });
+
+      const toast = document.getElementById("toast");
+      function copyText(text) {
+        if (navigator.clipboard && window.isSecureContext) {
+          return navigator.clipboard.writeText(text);
+        }
+        const area = document.createElement("textarea");
+        area.value = text;
+        area.setAttribute("readonly", "");
+        area.style.position = "fixed";
+        area.style.left = "-9999px";
+        document.body.appendChild(area);
+        area.select();
+        document.execCommand("copy");
+        area.remove();
+        return Promise.resolve();
+      }
+      document.getElementById("copy-ca").addEventListener("click", () => {
+        copyText("Audastersoon").then(() => {
+          toast.classList.add("show");
+          caBox.classList.remove("pulse");
+          void caBox.offsetWidth;
+          caBox.classList.add("pulse");
+          setTimeout(() => toast.classList.remove("show"), 1600);
+        });
+      });
+
+      const shots = Array.from(document.querySelectorAll(".shot img"));
+      const lightbox = document.getElementById("lightbox");
+      const lbImg = document.getElementById("lb-img");
+      const lbCap = document.getElementById("lb-cap");
+      let current = 0;
+
+      function openAt(index) {
+        current = (index + shots.length) % shots.length;
+        const shot = shots[current];
+        lbImg.src = shot.src;
+        lbImg.alt = shot.alt;
+        lbCap.textContent = shot.dataset.caption || "";
+        lightbox.classList.add("open");
+        document.body.classList.add("locked");
+      }
+      function closeLb() {
+        lightbox.classList.remove("open");
+        document.body.classList.remove("locked");
+      }
+      shots.forEach((shot, i) => {
+        shot.parentElement.addEventListener("click", () => openAt(i));
+      });
+      document.getElementById("lb-close").addEventListener("click", closeLb);
+      document.getElementById("lb-prev").addEventListener("click", () => openAt(current - 1));
+      document.getElementById("lb-next").addEventListener("click", () => openAt(current + 1));
+      lightbox.addEventListener("click", (event) => {
+        if (event.target === lightbox) closeLb();
+      });
+      document.addEventListener("keydown", (event) => {
+        if (!lightbox.classList.contains("open")) return;
+        if (event.key === "Escape") closeLb();
+        if (event.key === "ArrowRight") openAt(current + 1);
+        if (event.key === "ArrowLeft") openAt(current - 1);
+      });
+    })();
+  </script>
+</body>
+</html>
